@@ -1,8 +1,12 @@
-import { Body, Controller, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from 'src/user/dto/createUser.dto';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { Request, Response } from 'express';
+import { AccessTokenGuard } from 'src/common/guards/access-token.gaurd';
+import { Roles } from 'src/common/decorator/roles.decorator';
+import { Role } from 'src/common/enums/role';
+import { RolesGuard } from 'src/common/guards/role.gaurd';
 
 @Controller('auth')
 export class AuthController {
@@ -26,5 +30,12 @@ export class AuthController {
         }
         
         return await this.authService.refreshToken(refreshToken, res);
+    }
+
+    @Get('profile')
+    @UseGuards(AccessTokenGuard, RolesGuard)
+    @Roles(Role.ADMIN)
+    getProfile(@Req() req) {
+        return req.user;
     }
 }

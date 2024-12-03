@@ -23,7 +23,7 @@ export class AuthService {
         
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: AppConfig.NODE_ENV === 'production', // Chỉ bật secure khi ở môi trường production
+            secure: true, //AppConfig.NODE_ENV === 'production', // Chỉ bật secure khi ở môi trường production
             maxAge: AppConfig.REFRESH_TOKEN_EXPIRATION * 1000,
             sameSite: 'strict',
         });

@@ -26,11 +26,18 @@ export class UserService {
         return safeUser;
     }
 
-    async fillAll() {
+    async findAll() {
         return await this.userRepo.find({
             select: ['id', 'username', 'email', 'role'],
             where: { deletedAt: null, role: Not(Role.ADMIN) },
         });
+    }
+
+    async findOne (id: number) {
+        return await this.userRepo.find({
+            select: ['id', 'username', 'email', 'role'],
+            where: { deletedAt: null, id: id },
+        })
     }
 
     async findbyID(id: number): Promise<UserEntity> {
