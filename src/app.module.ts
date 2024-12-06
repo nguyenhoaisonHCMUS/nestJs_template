@@ -6,8 +6,8 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { db_config } from './configs/db.config';
 import { UserModule } from './user/user.module';
-import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from './common/guards/role.gaurd';
+import { AccessTokenStrategy } from './auth/strategies/access.strategy';
+import { RefreshTokenStrategy } from './auth/strategies/refresh.strategy';
 
 @Module({
   imports: [
@@ -19,10 +19,8 @@ import { RolesGuard } from './common/guards/role.gaurd';
   controllers: [AppController],
   providers: [
     AppService,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: RolesGuard,
-    // },
+    AccessTokenStrategy,
+    RefreshTokenStrategy
   ],
   exports: [],
 })

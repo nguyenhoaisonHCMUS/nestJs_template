@@ -18,8 +18,8 @@ export class AuthService {
         if (!user) throw new NotFoundException('Email or password invalid!');
     
         const payload = { email: user.email, sub: user.id };
-        const accessToken = this.jwtService.sign(payload, { expiresIn: AppConfig.JWT_EXPIRATION });
-        const refreshToken = this.jwtService.sign(payload, { expiresIn: AppConfig.REFRESH_TOKEN_EXPIRATION });
+        const accessToken = this.jwtService.sign(payload, { secret: AppConfig.JWT_ACCESS_KEY, expiresIn: AppConfig.JWT_EXPIRATION });
+        const refreshToken = this.jwtService.sign(payload, { secret: AppConfig.JWT_REFRESH_KEY,expiresIn: AppConfig.REFRESH_TOKEN_EXPIRATION });
         
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
@@ -35,26 +35,23 @@ export class AuthService {
         return this.userService.createUser(createUserDto);
     }
 
-    async refreshToken(refreshToken: string, res: Response): Promise<{ accessToken: string; }> {
+    async refreshToken(res: Response, req: Request): Promise<void> {
         try {
-            const decoded = this.jwtService.verify(refreshToken, { secret: AppConfig.JWT_REFRESH_KEY });
-            console.log("decoded:", decoded);
-
-            const user = await this.userService.findbyID(decoded.sub);
-            if (!user) throw new UnauthorizedException('Invalid refresh token!');
+            const { user, refreshToken } = req.user as {user: any, refreshToken: string};
+            if (!user || !refreshToken) throw new UnauthorizedException('Invalid data!');
 
             const payload = { email: user.email, sub: user.id };
-            const accessToken = this.jwtService.sign(payload, { expiresIn: AppConfig.JWT_EXPIRATION });
-            const newRefreshToken = this.jwtService.sign(payload, { expiresIn: AppConfig.REFRESH_TOKEN_EXPIRATION });
+            const accessToken = this.jwtService.sign(payload, { secret: AppConfig.JWT_ACCESS_KEY, expiresIn: AppConfig.JWT_EXPIRATION });
+            const newRefreshToken = this.jwtService.sign(payload, { secret: AppConfig.JWT_REFRESH_KEY,expiresIn: AppConfig.REFRESH_TOKEN_EXPIRATION, });
 
-            // res.cookie('refreshToken', newRefreshToken, {
-            //     httpOnly: true,
-            //     secure: true,
-            //     maxAge: AppConfig.REFRESH_TOKEN_EXPIRATION * 1000,
-            //     sameSite: 'strict',
-            // });
+            res.cookie('refreshToken', newRefreshToken, {
+                httpOnly: true,
+                secure: true,
+                maxAge: AppConfig.REFRESH_TOKEN_EXPIRATION * 1000,
+                sameSite: 'strict',
+            });
 
-            return { accessToken };
+            res.send({ accessToken });
         } catch (error) {
             throw new UnauthorizedException('Invalid refresh token');
         }

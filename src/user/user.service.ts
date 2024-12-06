@@ -34,7 +34,7 @@ export class UserService {
     }
 
     async findOne (id: number) {
-        return await this.userRepo.find({
+        return await this.userRepo.findOne({
             select: ['id', 'username', 'email', 'role'],
             where: { deletedAt: null, id: id },
         })

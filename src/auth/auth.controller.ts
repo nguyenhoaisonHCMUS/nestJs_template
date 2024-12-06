@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from 'src/user/dto/createUser.dto';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
@@ -7,6 +7,7 @@ import { AccessTokenGuard } from 'src/common/guards/access-token.gaurd';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { Role } from 'src/common/enums/role';
 import { RolesGuard } from 'src/common/guards/role.gaurd';
+import { RefreshTokenGuard } from 'src/common/guards/refresh-token.gaurd';
 
 @Controller('auth')
 export class AuthController {
@@ -23,13 +24,9 @@ export class AuthController {
     }
 
     @Post('refresh')
-    async refreshToken (@Req() req: Request, @Res() res: Response): Promise<any> {
-        const refreshToken = req.cookies.refreshToken;
-        if(!refreshToken){
-            throw new UnauthorizedException('Invalid refresh token');
-        }
-        
-        return await this.authService.refreshToken(refreshToken, res);
+    @UseGuards(RefreshTokenGuard)
+    async refreshToken (@Req() req: Request, @Res() res: Response,) {
+        await this.authService.refreshToken(res, req);
     }
 
     @Get('profile')

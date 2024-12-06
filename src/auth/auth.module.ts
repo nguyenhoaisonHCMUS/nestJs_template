@@ -10,9 +10,9 @@ import { AppConfig } from 'src/common/constants';
   imports: [
     UserModule, 
     JwtModule.register({
-    global: true,
-    secret: AppConfig.JWT_ACCESS_KEY,
-  })],
+      global: true,
+    })
+  ],
   providers: [AuthService],
   controllers: [AuthController]
 })

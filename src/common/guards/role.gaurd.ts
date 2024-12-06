@@ -16,7 +16,6 @@ export class RolesGuard implements CanActivate {
       return true;
     }
     const { user } = context.switchToHttp().getRequest();
-    console.log("user at role gaurd:" , user);
     if(!user) return false;
     
     // Kiểm tra nếu user.roles là mảng
